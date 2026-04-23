@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linear Quest - Belajar SPLDV</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f0f4f8;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .card-anim {
+            transition: transform 0.3s ease;
+        }
+        .card-anim:hover {
+            transform: translateY(-5px);
+        }
+        /* Style untuk tombol musik */
+        #musicToggle {
+            transition: all 0.2s ease;
+        }
+        #musicToggle:active {
+            transform: scale(0.9);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-4">
+
+    <!-- Audio Element -->
+    <audio id="bgMusic" loop>
+        <source src="https://github.com/salamahiis965-code/salamah/raw/refs/heads/main/Certainty_in_Motion.mp3" type="audio/mpeg">
+        Browser kamu tidak mendukung elemen audio.
+    </audio>
+
+    <!-- Header & Navigation -->
+    <header class="w-full max-w-4xl flex justify-between items-center mb-8 bg-blue-600 p-6 rounded-2xl text-white shadow-lg relative">
+        <div>
+            <h1 class="text-2xl font-bold">Linear Quest 🚀</h1>
+            <p class="text-sm opacity-90">Misi: Menguasai SPLDV</p>
+        </div>
+        <div class="flex items-center gap-4">
+            <!-- Tombol Musik -->
+            <button id="musicToggle" onclick="toggleMusic()" class="bg-blue-500 hover:bg-blue-400 p-2 rounded-full shadow-inner flex items-center justify-center w-10 h-10">
+                <span id="musicIcon">🔇</span>
+            </button>
+            <div id="stats" class="text-right">
+                <span id="scoreDisplay" class="bg-blue-800 px-4 py-2 rounded-full font-bold">Skor: 0</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="w-full max-w-4xl">
+        <!-- Main Menu -->
+        <div id="mainMenu" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <button onclick="showSection('learn')" class="glass p-8 rounded-3xl text-center card-anim shadow-md border-b-4 border-blue-500">
+                <div class="text-5xl mb-4">📖</div>
+                <h2 class="text-xl font-bold mb-2">Belajar Materi</h2>
+                <p class="text-gray-600">Pahami konsep dasar x dan y.</p>
+            </button>
+            <button onclick="startChallenge()" class="glass p-8 rounded-3xl text-center card-anim shadow-md border-b-4 border-green-500">
+                <div class="text-5xl mb-4">🎮</div>
+                <h2 class="text-xl font-bold mb-2">Mulai Tantangan</h2>
+                <p class="text-gray-600">Selesaikan misi untuk poin tinggi!</p>
+            </button>
+        </div>
+
+        <!-- Section: Materi -->
+        <section id="learnSection" class="hidden glass p-8 rounded-3xl shadow-xl">
+            <button onclick="showSection('menu')" class="mb-4 text-blue-600 font-bold">← Kembali ke Menu</button>
+            <h2 class="text-2xl font-bold mb-4 text-blue-800">Apa itu SPLDV?</h2>
+            <p class="mb-4">Sistem Persamaan Linear Dua Variabel adalah kumpulan dua atau lebih persamaan yang memiliki dua variabel (biasanya $x$ dan $y$).</p>
+            <div class="bg-blue-50 p-4 rounded-xl mb-6 border-l-4 border-blue-400">
+                <p class="font-mono text-lg">
+                    ax + by = c <br>
+                    px + qy = r
+                </p>
+            </div>
+            <h3 class="font-bold text-lg mb-2">Cara Menyelesaikan:</h3>
+            <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                <li><strong>Metode Substitusi:</strong> Mengganti satu variabel dengan persamaan variabel lainnya.</li>
+                <li><strong>Metode Eliminasi:</strong> Menghilangkan salah satu variabel dengan menjumlahkan atau mengurangkan persamaan.</li>
+                <li><strong>Metode Grafik:</strong> Mencari titik potong dari dua garis pada koordinat Kartesius.</li>
+            </ul>
+        </section>
+
+        <!-- Section: Game / Tantangan -->
+        <section id="gameSection" class="hidden glass p-8 rounded-3xl shadow-xl">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-2">
+                    <button onclick="showSection('menu')" class="text-gray-400 hover:text-blue-600 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                    </button>
+                    <h2 class="text-xl font-bold text-gray-800">Misi Aktif</h2>
+                </div>
+                <span id="levelBadge" class="bg-orange-100 text-orange-700 px-3 py-1 rounded text-sm font-bold">Level 1</span>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Panel Persamaan -->
+                <div class="bg-white p-6 rounded-2xl shadow-inner border border-gray-100">
+                    <p class="text-gray-500 mb-2">Selesaikan sistem berikut:</p>
+                    <div id="equationBox" class="text-2xl font-mono font-bold text-blue-700 space-y-2 mb-6 p-4 bg-gray-50 rounded-lg">
+                        <!-- Persamaan akan di-generate di sini -->
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Nilai x:</label>
+                            <input type="number" id="inputX" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none" placeholder="Masukkan x">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Nilai y:</label>
+                            <input type="number" id="inputY" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none" placeholder="Masukkan y">
+                        </div>
+                        <button onclick="checkAnswer()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg transition">Submit Jawaban</button>
+                    </div>
+                </div>
+
+                <!-- Visualisasi Grafik -->
+                <div class="bg-white p-4 rounded-2xl shadow-inner border border-gray-100 min-h-[300px]">
+                    <p class="text-gray-500 mb-2 text-center font-semibold">Visualisasi Grafik</p>
+                    <div class="relative h-64">
+                        <canvas id="spldvChart"></canvas>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-4 italic text-center">*Garis biru & merah mewakili kedua persamaan.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal Notifikasi -->
+    <div id="msgModal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white p-8 rounded-3xl max-w-sm w-full text-center shadow-2xl">
+            <div id="modalIcon" class="text-6xl mb-4"></div>
+            <h2 id="modalTitle" class="text-2xl font-bold mb-2 text-gray-800"></h2>
+            <p id="modalBody" class="text-gray-600 mb-6"></p>
+            <button onclick="closeModal()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition">Lanjutkan</button>
+        </div>
+    </div>
+
+    <script>
+        let score = 0;
+        let currentLevel = 1;
+        let currentProblem = {};
+        let myChart = null;
+        let isMusicPlaying = false;
+
+        const bgMusic = document.getElementById('bgMusic');
+        const musicIcon = document.getElementById('musicIcon');
+
+        function toggleMusic() {
+            if (isMusicPlaying) {
+                bgMusic.pause();
+                musicIcon.innerText = '🔇';
+            } else {
+                bgMusic.play().catch(e => console.log("Audio play blocked by browser. Click anywhere to play."));
+                musicIcon.innerText = '🔊';
+            }
+            isMusicPlaying = !isMusicPlaying;
+        }
+
+        // Mulai musik secara otomatis saat interaksi pertama (kebijakan browser)
+        window.addEventListener('click', () => {
+            if (!isMusicPlaying && bgMusic.paused) {
+                // Jangan paksa main jika user sengaja mute, 
+                // tapi ini membantu jika browser memblokir autoplay awal
+            }
+        }, { once: true });
+
+        function showSection(section) {
+            const sections = ['mainMenu', 'learnSection', 'gameSection'];
+            sections.forEach(s => document.getElementById(s).classList.add('hidden'));
+            
+            if(section === 'menu') document.getElementById('mainMenu').classList.remove('hidden');
+            if(section === 'learn') document.getElementById('learnSection').classList.remove('hidden');
+            if(section === 'game') document.getElementById('gameSection').classList.remove('hidden');
+        }
+
+        function generateProblem() {
+            let x = Math.floor(Math.random() * 8) - 4; 
+            let y = Math.floor(Math.random() * 8) - 4;
+
+            let a = Math.floor(Math.random() * 4) + 1;
+            let b = Math.floor(Math.random() * 4) + 1;
+            let c = (a * x) + (b * y);
+
+            let p = Math.floor(Math.random() * 4) + 1;
+            let q = Math.floor(Math.random() * 4) - 2; 
+            if (q === 0) q = 2;
+            let r = (p * x) + (q * y);
+
+            if (a*q === b*p) return generateProblem();
+
+            currentProblem = { a, b, c, p, q, r, x, y };
+
+            const eq1 = `${a}x ${b >= 0 ? '+' : ''}${b}y = ${c}`;
+            const eq2 = `${p}x ${q >= 0 ? '+' : ''}${q}y = ${r}`;
+
+            document.getElementById('equationBox').innerHTML = `
+                <div>${eq1}</div>
+                <div>${eq2}</div>
+            `;
+
+            updateChart(a, b, c, p, q, r);
+        }
+
+        function startChallenge() {
+            showSection('game');
+            generateProblem();
+            // Coba putar musik saat game dimulai jika belum jalan
+            if(!isMusicPlaying) toggleMusic();
+        }
+
+        function checkAnswer() {
+            const userX = parseInt(document.getElementById('inputX').value);
+            const userY = parseInt(document.getElementById('inputY').value);
+
+            if (isNaN(userX) || isNaN(userY)) {
+                showModal('❓', 'Tunggu dulu', 'Isi nilai x dan y terlebih dahulu!');
+                return;
+            }
+
+            if (userX === currentProblem.x && userY === currentProblem.y) {
+                score += 100;
+                updateStats();
+                showModal('⭐', 'Keren!', `Jawabanmu benar! Titik potongnya adalah (${userX}, ${userY}).`);
+                
+                document.getElementById('inputX').value = '';
+                document.getElementById('inputY').value = '';
+                generateProblem();
+            } else {
+                showModal('❌', 'Belum Berhasil', 'Coba hitung lagi dengan lebih teliti ya!');
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('scoreDisplay').innerText = `Skor: ${score}`;
+            if (score >= 300) {
+                currentLevel = 2;
+                document.getElementById('levelBadge').innerText = "Level 2";
+                document.getElementById('levelBadge').className = "bg-purple-100 text-purple-700 px-3 py-1 rounded text-sm font-bold";
+            }
+        }
+
+        function showModal(icon, title, body) {
+            document.getElementById('modalIcon').innerText = icon;
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalBody').innerText = body;
+            document.getElementById('msgModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('msgModal').classList.add('hidden');
+        }
+
+        function updateChart(a, b, c, p, q, r) {
+            const ctx = document.getElementById('spldvChart').getContext('2d');
+            const labels = [];
+            const data1 = [];
+            const data2 = [];
+
+            for (let i = -10; i <= 10; i++) {
+                labels.push(i);
+                data1.push((c - a * i) / b);
+                data2.push((r - p * i) / q);
+            }
+
+            if (myChart) myChart.destroy();
+
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Garis 1',
+                            data: data1,
+                            borderColor: 'rgb(59, 130, 246)',
+                            pointRadius: 0,
+                            borderWidth: 3
+                        },
+                        {
+                            label: 'Garis 2',
+                            data: data2,
+                            borderColor: 'rgb(239, 68, 68)',
+                            pointRadius: 0,
+                            borderWidth: 3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { min: -10, max: 10, grid: { color: '#f3f4f6' } },
+                        x: { grid: { color: '#f3f4f6' } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
